@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Jobs — JobPilot AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f1117;
+      --ink-soft: #3d4152;
+      --ink-muted: #8b8fa8;
+      --surface: #fafafa;
+      --card: #ffffff;
+      --accent: #1a56db;
+      --accent-light: #e8effd;
+      --accent-glow: rgba(26, 86, 219, 0.15);
+      --green: #0d9f6e;
+      --green-light: #e3f9f3;
+      --red: #e53e3e;
+      --red-light: #fff5f5;
+      --border: #e4e6ee;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-link:hover { background: var(--border); color: var(--ink); }
+    .nav-link.active { background: var(--accent-light); color: var(--accent); }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 48px 48px 32px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .page-header p {
+      font-size: 15px;
+      color: var(--ink-muted);
+      font-weight: 300;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 48px 24px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    .search-input {
+      flex: 1;
+      max-width: 360px;
+      position: relative;
+    }
+
+    .search-input span {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .search-input input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      background: var(--card);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .toolbar-right { display: flex; gap: 10px; align-items: center; }
+
+    .job-count {
+      font-size: 13px;
+      color: var(--ink-muted);
+      font-weight: 500;
+    }
+
+    .btn-clear {
+      padding: 9px 18px;
+      border: 1px solid #fed7d7;
+      background: var(--red-light);
+      color: var(--red);
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-clear:hover {
+      background: #ffe5e5;
+      border-color: var(--red);
+    }
+
+    /* ── GRID ── */
+    .grid-container {
+      flex: 1;
+      padding: 0 48px 60px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── JOB CARD ── */
+    .job-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      animation: fadeUp 0.35s ease both;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .job-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .company-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .match-pill {
+      background: var(--green-light);
+      color: var(--green);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .job-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .job-company {
+      font-size: 13px;
+      color: var(--ink-muted);
+      margin-top: 3px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .apply-btn {
+      padding: 8px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .apply-btn:hover { background: #1447cc; }
+
+    .remove-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--ink-muted);
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .remove-btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-light);
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .empty-icon { font-size: 56px; margin-bottom: 16px; }
+
+    .empty-state h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      color: var(--ink-muted);
+      font-weight: 300;
+      margin-bottom: 24px;
+    }
+
+    .btn-go {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-go:hover { background: #1447cc; transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="index.html">
+      <div class="logo-icon">✈️</div>
+      <span class="logo-text">Job<span>Pilot</span> AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Find Jobs</a>
+      <a href="dashboard.html" class="nav-link active">Saved Jobs</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Saved Jobs</h1>
+    <p>Your shortlisted roles, ready to apply whenever you are.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-input">
+      <span>🔍</span>
+      <input type="text" id="searchBox" placeholder="Search by title or company…" oninput="filterJobs()">
+    </div>
+    <div class="toolbar-right">
+      <span class="job-count" id="jobCount"></span>
+      <button class="btn-clear" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+  </div>
+
+  <div class="grid-container">
+    <div class="jobs-grid" id="jobsGrid"></div>
+  </div>
+
+  <footer>
+    JobPilot AI · <a href="index.html">← Find More Jobs</a>
+  </footer>
+
+  <script>
+    const emojis = ['🏢', '💼', '🚀', '🌐', '🔧', '📊', '🎯', '💡'];
+    let allJobs = [];
+
+    function loadJobs() {
+      const stored = JSON.parse(localStorage.getItem('savedJobs') || '[]');
+      allJobs = stored;
+      renderGrid(stored);
+    }
+
+    function renderGrid(jobs) {
+      const grid = document.getElementById('jobsGrid');
+      const countEl = document.getElementById('jobCount');
+      grid.innerHTML = '';
+      countEl.textContent = jobs.length > 0 ? `${jobs.length} saved job${jobs.length > 1 ? 's' : ''}` : '';
+
+      if (jobs.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h2>No saved jobs yet</h2>
+            <p>Find jobs that match your profile and save the ones you love.</p>
+            <a href="index.html" class="btn-go">🔍 Find Matching Jobs</a>
+          </div>`;
+        return;
+      }
+
+      jobs.forEach((job, i) => {
+        const score = typeof job.match === 'string' ? job.match : job.match + '%';
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.style.animationDelay = `${i * 50}ms`;
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="company-logo">${emojis[i % emojis.length]}</div>
+            <span class="match-pill">⚡ ${score} match</span>
+          </div>
+          <div>
+            <div class="job-title">${job.title}</div>
+            <div class="job-company">${job.company}</div>
+          </div>
+          <div class="card-meta">
+            <span class="meta-tag">Full-time</span>
+            <span class="meta-tag">Remote</span>
+          </div>
+          <div class="card-footer">
+            <button class="apply-btn">Apply Now →</button>
+            <button class="remove-btn" onclick="removeJob(${i})">Remove</button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterJobs() {
+      const q = document.getElementById('searchBox').value.toLowerCase();
+      const filtered = allJobs.filter(j =>
+        j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q)
+      );
+      renderGrid(filtered);
+    }
+
+    function removeJob(index) {
+      allJobs.splice(index, 1);
+      localStorage.setItem('savedJobs', JSON.stringify(allJobs));
+      loadJobs();
+    }
+
+    function clearAll() {
+      if (allJobs.length === 0) return;
+      if (confirm('Remove all saved jobs?')) {
+        localStorage.removeItem('savedJobs');
+        loadJobs();
+      }
+    }
+
+    loadJobs();
+  </script>
+</body>
+</html>

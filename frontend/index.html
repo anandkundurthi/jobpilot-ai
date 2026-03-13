@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobPilot AI — Find Your Next Role</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0f1117;
+      --ink-soft: #3d4152;
+      --ink-muted: #8b8fa8;
+      --surface: #fafafa;
+      --card: #ffffff;
+      --accent: #1a56db;
+      --accent-light: #e8effd;
+      --accent-glow: rgba(26, 86, 219, 0.15);
+      --green: #0d9f6e;
+      --green-light: #e3f9f3;
+      --border: #e4e6ee;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-link:hover { background: var(--border); color: var(--ink); }
+    .nav-link.active { background: var(--accent-light); color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid rgba(26,86,219,0.2);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: var(--ink);
+      max-width: 700px;
+      margin: 0 auto 16px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--ink-soft);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── MAIN CARD ── */
+    .main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 0 24px 80px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+      width: 100%;
+      max-width: 640px;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--ink-muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      background: #fcfcfd;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .upload-zone h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .upload-zone p {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .upload-zone p strong {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .file-info {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: var(--green-light);
+      border: 1px solid rgba(13,159,110,0.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 16px;
+    }
+
+    .file-info.visible { display: flex; }
+
+    .file-info-icon { font-size: 20px; }
+
+    .file-info-name {
+      font-weight: 500;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .file-info-size {
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .file-remove {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+
+    .file-remove:hover { color: #e53e3e; }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 24px;
+      margin-top: 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1447cc;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-icon { font-size: 18px; }
+
+    /* ── LOADING ── */
+    .loading-bar {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .loading-bar.visible { display: block; }
+
+    .loading-text {
+      font-size: 13px;
+      color: var(--ink-muted);
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 100px;
+      width: 0%;
+      transition: width 0.4s ease;
+      animation: progressAnim 2s ease forwards;
+    }
+
+    @keyframes progressAnim {
+      0%   { width: 0%; }
+      40%  { width: 55%; }
+      80%  { width: 82%; }
+      100% { width: 95%; }
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    /* ── RESULTS ── */
+    #output { display: none; }
+    #output.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .results-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .results-count {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .job-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: #fdfdfe;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      animation: fadeUp 0.35s ease both;
+      cursor: pointer;
+    }
+
+    .job-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .company-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .job-info { flex: 1; min-width: 0; }
+
+    .job-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .job-company {
+      font-size: 13px;
+      color: var(--ink-muted);
+      margin-bottom: 10px;
+    }
+
+    .job-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 100px;
+      background: var(--border);
+      color: var(--ink-soft);
+    }
+
+    .match-badge {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .match-score {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1;
+    }
+
+    .match-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-muted);
+      font-weight: 600;
+    }
+
+    .save-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--ink-muted);
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+
+    .save-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* ── EMPTY / ERROR ── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--ink-muted);
+    }
+
+    .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; }
+
+    .error-box {
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      color: #c53030;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="index.html">
+      <div class="logo-icon">✈️</div>
+      <span class="logo-text">Job<span>Pilot</span> AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Find Jobs</a>
+      <a href="dashboard.html" class="nav-link">Saved Jobs</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge">✦ AI-Powered Matching</div>
+    <h1>Find jobs <em>perfectly matched</em> to your resume</h1>
+    <p>Upload your resume and let our AI instantly surface the roles that align with your skills and experience.</p>
+  </div>
+
+  <main class="main">
+    <div class="card">
+      <div class="section-label">Upload Resume</div>
+
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="resume" accept=".pdf,.doc,.docx">
+        <span class="upload-icon">📄</span>
+        <h3>Drop your resume here</h3>
+        <p>or <strong>browse files</strong> — PDF, DOC, DOCX</p>
+      </div>
+
+      <div class="file-info" id="fileInfo">
+        <span class="file-info-icon">✅</span>
+        <div>
+          <div class="file-info-name" id="fileName">resume.pdf</div>
+          <div class="file-info-size" id="fileSize">—</div>
+        </div>
+        <button class="file-remove" id="removeFile" title="Remove file">✕</button>
+      </div>
+
+      <button class="btn-primary" id="findBtn" onclick="findJobs()" disabled>
+        <span class="btn-icon">🔍</span> Analyze & Find Matching Jobs
+      </button>
+
+      <div class="loading-bar" id="loadingBar">
+        <div class="loading-text">
+          <span class="spinner"></span>
+          <span id="loadingText">Parsing resume…</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div id="output">
+        <div class="divider"></div>
+        <div id="resultsBody"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Built with ❤️ · <a href="dashboard.html">View Saved Jobs →</a>
+  </footer>
+
+  <script>
+    const fileInput  = document.getElementById('resume');
+    const dropZone   = document.getElementById('dropZone');
+    const fileInfo   = document.getElementById('fileInfo');
+    const fileName   = document.getElementById('fileName');
+    const fileSize   = document.getElementById('fileSize');
+    const removeFile = document.getElementById('removeFile');
+    const findBtn    = document.getElementById('findBtn');
+    const loadingBar = document.getElementById('loadingBar');
+    const loadingText = document.getElementById('loadingText');
+    const output     = document.getElementById('output');
+    const resultsBody = document.getElementById('resultsBody');
+
+    const steps = ['Parsing resume…', 'Extracting skills…', 'Scanning job listings…', 'Calculating match scores…'];
+
+    fileInput.addEventListener('change', handleFile);
+    removeFile.addEventListener('click', clearFile);
+
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        handleFile();
+      }
+    });
+
+    function handleFile() {
+      const f = fileInput.files[0];
+      if (!f) return;
+      fileName.textContent = f.name;
+      fileSize.textContent = (f.size / 1024).toFixed(1) + ' KB';
+      fileInfo.classList.add('visible');
+      findBtn.disabled = false;
+    }
+
+    function clearFile() {
+      fileInput.value = '';
+      fileInfo.classList.remove('visible');
+      findBtn.disabled = true;
+      output.classList.remove('visible');
+      resultsBody.innerHTML = '';
+    }
+
+    async function findJobs() {
+      if (!fileInput.files.length) return;
+
+      findBtn.disabled = true;
+      loadingBar.classList.add('visible');
+      output.classList.remove('visible');
+      resultsBody.innerHTML = '';
+
+      let step = 0;
+      const interval = setInterval(() => {
+        if (step < steps.length) loadingText.textContent = steps[step++];
+      }, 500);
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/match-jobs', { method: 'POST', body: formData });
+        const data = await response.json();
+        clearInterval(interval);
+        loadingBar.classList.remove('visible');
+        renderResults(data);
+      } catch (err) {
+        clearInterval(interval);
+        loadingBar.classList.remove('visible');
+        findBtn.disabled = false;
+        output.classList.add('visible');
+        resultsBody.innerHTML = `<div class="error-box">⚠️ Could not connect to the backend. Please ensure the server is running at <code>http://127.0.0.1:8000</code>.</div>`;
+      }
+    }
+
+    function renderResults(data) {
+      output.classList.add('visible');
+
+      if (!data.jobs || data.jobs.length === 0) {
+        resultsBody.innerHTML = `
+          <div class="empty-state">
+            <div class="emoji">🤷</div>
+            <p>No matching jobs found. Try with a different resume.</p>
+          </div>`;
+        return;
+      }
+
+      const emojis = ['🏢', '💼', '🚀', '🌐', '🔧', '📊', '🎯', '💡'];
+
+      resultsBody.innerHTML = `
+        <div class="results-header">
+          <div class="results-title">Matching Jobs</div>
+          <span class="results-count">${data.jobs.length} found</span>
+        </div>`;
+
+      data.jobs.forEach((job, i) => {
+        const score = typeof job.match === 'string' ? job.match : job.match + '%';
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.style.animationDelay = `${i * 60}ms`;
+        card.innerHTML = `
+          <div class="company-logo">${emojis[i % emojis.length]}</div>
+          <div class="job-info">
+            <div class="job-title">${job.title}</div>
+            <div class="job-company">${job.company}</div>
+            <div class="job-tags">
+              <span class="tag">Full-time</span>
+              <span class="tag">Remote</span>
+            </div>
+          </div>
+          <div class="match-badge">
+            <div class="match-score">${score}</div>
+            <div class="match-label">Match</div>
+            <button class="save-btn" onclick="saveJob(event, ${JSON.stringify(job).replace(/"/g, '&quot;')})">🔖 Save</button>
+          </div>`;
+        resultsBody.appendChild(card);
+      });
+    }
+
+    function saveJob(event, job) {
+      event.stopPropagation();
+      const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]');
+      if (!saved.find(j => j.title === job.title && j.company === job.company)) {
+        saved.push(job);
+        localStorage.setItem('savedJobs', JSON.stringify(saved));
+        const btn = event.target;
+        btn.textContent = '✅ Saved';
+        btn.style.color = 'var(--green)';
+        btn.style.borderColor = 'var(--green)';
+      }
+    }
+  </script>
+</body>
+</html>
